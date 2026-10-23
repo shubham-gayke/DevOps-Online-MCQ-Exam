@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="DevOps Exam Hub — A comprehensive 100-question MCQ exam covering Git, GitHub, Terraform, Ansible, Docker, and Kubernetes.">
+  <title>DevOps Exam Hub</title>
+
+  <!-- Bootstrap 5.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       START SCREEN
+  ═══════════════════════════════════════════════════════════════════════ -->
+  <section id="start-screen" aria-label="Exam Start">
+    <div class="start-card surface-elevated">
+      <div class="db-status-bar" id="db-status-bar">
+        <span class="db-dot" id="db-status-dot"></span>
+        <span id="db-status-text">Checking database...</span>
+      </div>
+
+      <h1 class="heading-display">DevOps Exam Hub</h1>
+      <p class="start-description">
+        Test your mastery across the DevOps toolchain &mdash; from Git fundamentals
+        to Kubernetes orchestration. One hundred carefully crafted questions designed
+        to challenge even experienced practitioners.
+      </p>
+
+      <div class="input-grid-2">
+        <div class="name-input-group">
+          <label for="student-name">Your Full Name <span class="required-star">*</span></label>
+          <input type="text" id="student-name" class="input-field" placeholder="e.g. Jane Doe" autocomplete="name" required>
+        </div>
+        <div class="name-input-group">
+          <label for="student-email">Email Address <span class="required-star">*</span></label>
+          <input type="email" id="student-email" class="input-field" placeholder="e.g. jane@company.com" autocomplete="email" required>
+        </div>
+      </div>
+
+      <div id="account-status-msg" class="account-status-msg hidden"></div>
+
+      <ul class="rules-list" aria-label="Exam rules">
+        <li><i class="bi bi-list-ol"></i> 100 questions, 1 mark each &mdash; no negative marking</li>
+        <li><i class="bi bi-clock"></i> No time limit &mdash; complete at your own pace</li>
+        <li class="anti-cheat-rule"><i class="bi bi-camera-video-fill text-danger"></i> <strong>Webcam AI Proctoring:</strong> Real-time camera monitoring for mobile phones &amp; unauthorized devices</li>
+        <li class="anti-cheat-rule"><i class="bi bi-phone-fill text-danger"></i> <strong>3-Strike Phone Policy:</strong> Cell phone detection gives a warning &mdash; 3 warnings immediately terminate the exam</li>
+        <li class="anti-cheat-rule"><i class="bi bi-fullscreen text-danger"></i> <strong>Locked Window:</strong> Fullscreen mode is enforced; switching tabs or windows gives a strike</li>
+        <li class="anti-cheat-rule"><i class="bi bi-shield-slash-fill text-danger"></i> <strong>Anti-Copy Protection:</strong> Text selection, right-click, copy-paste, and dev shortcuts are disabled</li>
+      </ul>
+
+      <!-- Camera Setup & Check Box -->
+      <div class="camera-preview-container" id="camera-preview-container">
+        <div class="camera-video-wrapper">
+          <video id="setup-video" autoplay playsinline muted></video>
+          <div class="camera-status-overlay" id="camera-status-overlay">
+            <i class="bi bi-camera-video-fill" style="font-size:1.8rem;"></i>
+            <span id="camera-status-label">Camera Access Required for AI Proctoring</span>
+          </div>
+        </div>
+        <div class="camera-actions d-flex justify-content-center gap-2">
+          <button type="button" class="btn-ghost" id="enable-camera-btn" style="font-size:0.85rem; padding:6px 16px;">
+            <i class="bi bi-camera-fill"></i> Test Camera
+          </button>
+        </div>
+      </div>
+
+      <button class="btn-accent w-100" id="start-btn" disabled aria-label="Start Exam">
+        <i class="bi bi-play-fill"></i> Start Exam
+      </button>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       EXAM SCREEN
+  ═══════════════════════════════════════════════════════════════════════ -->
+  <section id="exam-screen" class="hidden" aria-label="Exam">
+    <!-- Top Bar -->
+    <header class="exam-topbar" role="banner">
+      <span class="topbar-title">DevOps Exam Hub</span>
+      <div class="topbar-stats">
+        <span aria-live="polite"><i class="bi bi-check2-circle"></i> <span id="answered-count">0</span>/100 answered</span>
+      </div>
+      <span class="topbar-warning-badge" id="topbar-warning-badge" title="Anti-Cheating Violations">
+        <i class="bi bi-shield-shaded"></i> Strikes: <strong id="topbar-warning-count">0</strong>/3
+      </span>
+      <span class="topbar-timer" id="timer" role="timer" aria-label="Elapsed time"><i class="bi bi-stopwatch"></i> 00:00</span>
+      <button class="btn-accent" id="submit-btn" style="padding:8px 20px; font-size:0.85rem;">
+        <i class="bi bi-send-fill"></i> Submit
+      </button>
+    </header>
+
+    <!-- Exam Layout -->
+    <div class="exam-layout">
+      <!-- Main Content -->
+      <main class="exam-main">
+        <div class="question-card surface" id="question-card" aria-live="polite">
+          <!-- Question meta -->
+          <div class="question-meta">
+            <span class="question-number" id="q-number">Q 1 / 100</span>
+            <span class="badge-topic" id="q-topic-badge">Git</span>
+            <span class="badge-difficulty" id="q-diff-badge">Hard</span>
+          </div>
+          <!-- Question text -->
+          <p class="question-text" id="q-text"></p>
+          <!-- Code block (optional) -->
+          <div class="code-block-wrapper hidden" id="q-code-wrapper">
+            <div class="code-block-header">
+              <span class="code-block-lang" id="q-code-lang"></span>
+              <button class="code-copy-btn" id="code-copy-btn" aria-label="Copy code">
+                <i class="bi bi-clipboard"></i> Copy
+              </button>
+            </div>
+            <pre class="code-block-content" id="q-code-content"></pre>
+          </div>
+          <!-- Options -->
+          <div class="options-grid" id="options-grid" role="radiogroup" aria-label="Answer options"></div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="question-nav">
+          <div class="nav-left">
+            <button class="btn-ghost" id="prev-btn" aria-label="Previous question">
+              <i class="bi bi-chevron-left"></i> Previous <span class="kbd-hint">&#8592;</span>
+            </button>
+            <button class="btn-ghost btn-mark" id="mark-btn" aria-label="Mark for review">
+              <i class="bi bi-flag"></i> Mark <span class="kbd-hint">M</span>
+            </button>
+          </div>
+          <div class="nav-right">
+            <button class="btn-ghost" id="clear-btn" aria-label="Clear answer">
+              <i class="bi bi-x-circle"></i> Clear
+            </button>
+            <button class="btn-accent" id="next-btn" aria-label="Next question">
+              Next <i class="bi bi-chevron-right"></i> <span class="kbd-hint">&#8594;</span>
+            </button>
+          </div>
+        </div>
+      </main>
+
+      <!-- Sidebar (Desktop Palette & Proctoring Feed) -->
+      <aside class="exam-sidebar" aria-label="Exam Sidebar">
+        <!-- Live AI Proctoring Feed Panel -->
+        <div class="proctor-panel surface" id="proctor-panel">
+          <div class="proctor-panel-header">
+            <span class="proctor-badge live"><span class="live-dot"></span> AI Proctor</span>
+            <span class="proctor-warning-pill" id="proctor-warning-pill">0 / 3 Strikes</span>
+          </div>
+          <div class="proctor-feed-container">
+            <video id="exam-video" autoplay playsinline muted></video>
+            <canvas id="exam-canvas"></canvas>
+            <div class="phone-detected-banner hidden" id="phone-detected-banner">
+              <i class="bi bi-exclamation-triangle-fill"></i> PHONE DETECTED
+            </div>
+          </div>
+          <div class="proctor-status-footer">
+            <span id="ai-model-status"><i class="bi bi-eye-fill"></i> Scanning for phones...</span>
+          </div>
+        </div>
+
+        <div class="palette-card surface" id="palette-card">
+          <div class="palette-title">Question Palette</div>
+          <div class="palette-grid" id="palette-grid" role="navigation" aria-label="Jump to question"></div>
+          <div class="palette-legend">
+            <div class="legend-item"><div class="legend-dot current"></div> Current</div>
+            <div class="legend-item"><div class="legend-dot answered"></div> Answered</div>
+            <div class="legend-item"><div class="legend-dot unanswered"></div> Unanswered</div>
+            <div class="legend-item"><div class="legend-dot marked"></div> Marked</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       CONFIRMATION MODAL
+  ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="modal fade" id="confirm-modal" tabindex="-1" aria-labelledby="confirm-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirm-modal-label">Submit Exam?</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p id="modal-message"></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-ghost" data-bs-dismiss="modal">Review Answers</button>
+          <button type="button" class="btn-accent" id="confirm-submit-btn">
+            <i class="bi bi-send-fill"></i> Confirm Submission
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       RESULT SCREEN
+  ═══════════════════════════════════════════════════════════════════════ -->
+  <section id="result-screen" aria-label="Exam Results">
+    <div class="app-container">
+      <!-- Score Header -->
+      <div class="result-header">
+        <h2 class="heading-section" style="margin-bottom:8px;">Exam Results</h2>
+        <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:2px;" id="result-student-name"></p>
+        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:12px;" id="result-student-email"></p>
+        <div id="result-db-badge" class="result-db-badge"><i class="bi bi-cloud-check-fill"></i> Saved to MongoDB Atlas</div>
+
+        <!-- Termination Notice Banner (shown only if terminated for cheating) -->
+        <div class="termination-result-card surface hidden" id="termination-result-card">
+          <div class="termination-result-header">
+            <i class="bi bi-x-octagon-fill text-danger" style="font-size:2rem;"></i>
+            <div>
+              <h3 style="margin:0; font-size:1.15rem; color:var(--red);">Examination Terminated Due to Anti-Cheating Violations</h3>
+              <p style="margin:4px 0 0; font-size:0.85rem; color:var(--text-secondary);" id="termination-result-subtitle">
+                3 proctoring strikes were recorded during this session.
+              </p>
+            </div>
+          </div>
+          <div class="termination-violations-list" id="termination-violations-list"></div>
+        </div>
+        <div class="score-ring-container" aria-label="Score visualization">
+          <svg class="score-ring-svg" viewBox="0 0 200 200">
+            <circle class="score-ring-bg" cx="100" cy="100" r="90"></circle>
+            <circle class="score-ring-progress" id="score-ring-progress" cx="100" cy="100" r="90"></circle>
+          </svg>
+          <div class="score-ring-text">
+            <div class="score-value" id="score-value">0 / 100</div>
+            <div class="score-percentage" id="score-percentage">0%</div>
+          </div>
+        </div>
+
+        <div class="result-stats">
+          <div class="stat-item">
+            <div class="stat-value correct" id="stat-correct">0</div>
+            <div class="stat-label">Correct</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value wrong" id="stat-wrong">0</div>
+            <div class="stat-label">Wrong</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value skipped" id="stat-skipped">0</div>
+            <div class="stat-label">Skipped</div>
+          </div>
+        </div>
+
+        <div class="time-taken" id="time-taken"></div>
+      </div>
+
+      <!-- Topic-wise Table -->
+      <div class="topic-table-wrapper surface" style="padding:24px; border-radius:var(--radius-lg);">
+        <h3 class="heading-section" style="font-size:1.1rem; margin-bottom:16px;">Topic-wise Performance</h3>
+        <div id="topic-table"></div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="result-actions">
+        <button class="btn-accent" id="retake-btn">
+          <i class="bi bi-arrow-repeat"></i> Retake Exam
+        </button>
+        <button class="btn-ghost" id="print-btn">
+          <i class="bi bi-printer"></i> Download / Print
+        </button>
+      </div>
+
+      <!-- Review Section -->
+      <div class="review-section">
+        <h3 class="heading-section" style="margin-bottom:16px;">Answer Review</h3>
+        <div class="review-filters" id="review-filters" role="tablist" aria-label="Filter answers"></div>
+        <div id="review-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       ANTI-CHEATING VIOLATION WARNING MODAL
+  ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="modal fade" id="violation-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="violation-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="border: 2px solid var(--red);">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title" id="violation-modal-label">
+            <i class="bi bi-exclamation-triangle-fill"></i> Anti-Cheating Warning
+          </h5>
+        </div>
+        <div class="modal-body text-center" style="padding: 24px 20px;">
+          <div class="violation-counter-pill" id="violation-counter-pill">
+            Warning <span id="violation-current-count">0</span> of 3
+          </div>
+          <h4 class="violation-reason-title" id="violation-reason-title">Mobile Phone Detected!</h4>
+          <p class="violation-reason-desc" id="violation-reason-desc">
+            A cell phone was detected in your webcam feed. Mobile devices are strictly prohibited during the exam.
+          </p>
+          <div class="alert alert-danger" style="font-size:0.85rem; text-align:left; margin-bottom:0;">
+            <i class="bi bi-shield-exclamation"></i> <strong>Strict Policy:</strong> If you reach <strong>3 warnings</strong>, your exam will be permanently terminated and submitted automatically.
+          </div>
+        </div>
+        <div class="modal-footer justify-content-center">
+          <button type="button" class="btn-accent" id="acknowledge-violation-btn">
+            <i class="bi bi-check2-circle"></i> I Understand &amp; Return to Fullscreen Exam
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       EXAM TERMINATED MODAL
+  ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="modal fade" id="termination-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="termination-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="border: 2px solid var(--red);">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title" id="termination-modal-label">
+            <i class="bi bi-x-octagon-fill"></i> Exam Terminated
+          </h5>
+        </div>
+        <div class="modal-body text-center" style="padding: 28px 20px;">
+          <i class="bi bi-shield-x text-danger" style="font-size:3.5rem;"></i>
+          <h3 style="margin-top:12px; color:var(--red);">Examination Terminated</h3>
+          <p style="color:var(--text-secondary); margin-top:8px; font-size:0.95rem;">
+            Your session has been terminated by the AI proctor after accumulating <strong>3 anti-cheating violations</strong>.
+          </p>
+          <div class="termination-violations-list" id="termination-modal-list" style="margin-top:16px;"></div>
+        </div>
+        <div class="modal-footer justify-content-center">
+          <button type="button" class="btn-accent" id="view-terminated-result-btn">
+            View Final Results
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Cheat Toast Notification ═══ -->
+  <div class="cheat-toast surface-elevated" id="cheat-toast" role="alert" aria-live="assertive">
+    <i class="bi bi-shield-x"></i>
+    <span id="cheat-toast-msg">Text selection and copying are disabled during the exam.</span>
+  </div>
+
+  <!-- ═══ Scripts ═══ -->
+  <!-- TensorFlow.js & COCO-SSD for Real-Time AI Camera Proctoring & Phone Detection -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js"></script>
+  <!-- Question Bank (loaded via <script> tags for file:// compatibility) -->
+  <script src="js/questions/git.js"></script>
+  <script src="js/questions/github.js"></script>
+  <script src="js/questions/terraform.js"></script>
+  <script src="js/questions/ansible.js"></script>
+  <script src="js/questions/docker.js"></script>
+  <script src="js/questions/kubernetes.js"></script>
+  <!-- Bootstrap 5.3 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- App Logic -->
+  <script src="js/app.js"></script>
+</body>
+</html>

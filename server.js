@@ -25,7 +25,20 @@ const DB_NAME = 'devops_exam_hub';
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname)));
+
+// Auto-connect middleware for serverless invocations (e.g. Vercel)
+app.use(async (req, res, next) => {
+  if (req.path.startsWith('/api') && !db) {
+    await connectToMongo();
+  }
+  next();
+});
+
+// Root route to serve frontend index.html
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 let dbClient = null;
 let db = null;
@@ -81,9 +94,10 @@ async function seedQuestionsIfEmpty() {
 // ═════════════════════════════════════════════════════════════════════════════
 // API ROUTES
 // ═════════════════════════════════════════════════════════════════════════════
+const apiRouter = express.Router();
 
 // Health / Status
-app.get('/api/status', async (req, res) => {
+async function handleStatus(req, res) {
   const isConnected = !!db;
   let questionCount = 0;
   let studentCount = 0;
@@ -108,10 +122,13 @@ app.get('/api/status', async (req, res) => {
       submissions: submissionCount
     }
   });
-});
+}
+
+apiRouter.get('/status', handleStatus);
+apiRouter.get('/db-status', handleStatus);
 
 // Student registration / account creation
-app.post('/api/students/register', async (req, res) => {
+apiRouter.post('/students/register', async (req, res) => {
   if (!db) {
     return res.status(503).json({ error: 'Database not connected' });
   }
@@ -181,7 +198,7 @@ app.post('/api/students/register', async (req, res) => {
 });
 
 // Fetch questions from MongoDB Atlas
-app.get('/api/questions', async (req, res) => {
+apiRouter.get('/questions', async (req, res) => {
   if (!db) {
     return res.status(503).json({ error: 'Database not connected' });
   }
@@ -200,7 +217,7 @@ app.get('/api/questions', async (req, res) => {
 });
 
 // Force re-seed questions into database
-app.post('/api/seed', async (req, res) => {
+apiRouter.post('/seed', async (req, res) => {
   if (!db) {
     return res.status(503).json({ error: 'Database not connected' });
   }
@@ -221,7 +238,7 @@ app.post('/api/seed', async (req, res) => {
 });
 
 // Save exam submission
-app.post('/api/submissions', async (req, res) => {
+apiRouter.post('/submissions', async (req, res) => {
   if (!db) {
     return res.status(503).json({ error: 'Database not connected' });
   }
@@ -290,10 +307,14 @@ app.post('/api/submissions', async (req, res) => {
   }
 });
 
-// Auto-connect middleware for serverless invocations (e.g. Vercel)
-app.use(async (req, res, next) => {
-  if (req.path.startsWith('/api') && !db) {
-    await connectToMongo();
+// Mount API router to handle both /api and direct paths
+app.use('/api', apiRouter);
+app.use('/', apiRouter);
+
+// Fallback middleware for non-API GET requests to serve index.html (Express 4 & 5 compatible)
+app.use((req, res, next) => {
+  if (req.method === 'GET' && !req.path.startsWith('/api')) {
+    return res.sendFile(path.join(__dirname, 'index.html'));
   }
   next();
 });

@@ -25,6 +25,7 @@ const DB_NAME = 'devops_exam_hub';
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname)));
 
 // Auto-connect middleware for serverless invocations (e.g. Vercel)
